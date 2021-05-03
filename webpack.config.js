@@ -5,6 +5,8 @@ module.exports = {
   mode: 'development',
   entry: {
     index: './src/index.js',
+    api: './src/api.js',
+    dom: './src/dom.js',
   },
   devtool: 'inline-source-map',
   devServer: {
@@ -23,12 +25,27 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
+        test: /\.scss$/,
+        use: [
+          // Creates `style` nodes from JS strings
+          "style-loader",
+          // Translates CSS into CommonJS
+          "css-loader",
+          // Compiles Sass to CSS
+          "sass-loader",
+        ],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
+      },
+      {
+        test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        use: ['url-loader'],
+      },
+      {
+        test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        use: ['file-loader'],
       },
     ],
   },

@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+* {
+  font-family: 'Raleway', sans-serif;
+}
+
+body {
+  background-image: url('./background.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  overflow: hidden;
+  margin: 0;
+}
+
+main {
+  display: flex;
+  justify-content: space-between;
+}
+
+.current-weather {
+  margin: 3em;
+}
+
+.city-name {
+  font-size: 2.3em;
+}
+
+.current-date {
+  margin-top: 0.2em;
+  margin-bottom: 1em;
+}
+
+.current-description {
+  margin-top: 1.9em;
+  text-align: center;
+  width: 7em;
+}
+
+img[alt='weather-icon'] {
+  height: 10em;
+  float: left;
+  margin: -1.3em;
+}
+
+.current-temperature {
+  font-size: 3em;
+  font-weight: bold;
+  display: inline-block;
+  margin-left: 0.8em;
+  padding-top: 0.4em;
+}
+
+.location-search {
+  align-self: center;
+}
+
+.current-data {
+  margin: 1.5em 4em 3em 3em;
+}
+
+.current-data-label {
+  margin-top: 1.5em;
+  margin-bottom: 0.2em;
+  font-size: 0.8em;
+}
+
+.current-data-value {
+  font-size: 1.5em;
+  font-weight: bold;
+
+}
