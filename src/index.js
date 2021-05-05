@@ -42,6 +42,7 @@ const app = (() => {
 
     currentWeather.city = data.city;
     currentWeather.pop = data.hourly[0].pop;
+    currentWeather.wind_speed = Math.round(currentWeather.wind_speed * 3.6);
     
     dom.renderCurrent(currentWeather);
     dom.renderDetails(currentWeather);
@@ -55,37 +56,80 @@ const app = (() => {
     for (let i = 0; i < hourlyForecast.length; i++) {
       hourlyForecast[i].unit = data.unit;
       
-      hourlyForecast[i].time = format(
-        utcToZonedTime(hourlyForecast[i].dt * 1000, timezone),
-        'h a',
-        { timeZone: timezone }
-      );
+      if (i === 0) {
+        hourlyForecast[i].time = 'Now';
+      } else {
+        hourlyForecast[i].time = format(
+          utcToZonedTime(hourlyForecast[i].dt * 1000, timezone),
+          'h a',
+          { timeZone: timezone }
+        );
+      }
     }
-    
-    console.log(hourlyForecast);
-    // dom.renderHourly(hourlyForecast);
+
+    hourlyForecast.map((hourObj) => dom.renderHourCard(hourObj));
   };
 
   const loadDaily = (data) => {
-    const dailyForecast = data.daily.reduce((arr, dayData) => {
-      arr.push(processDayData({
-        data: dayData,
-        unit: data.unit,
-        timezone: data.timezone
-      }));
+    const dailyForecast = data.daily.reduce((arr, dayData, index) => {
+      if (index !== 0) {
+        const processedData = processDayData({
+          data: dayData,
+          unit: data.unit,
+          timezone: data.timezone
+        });
+        const localTime = utcToZonedTime(dayData.dt * 1000, data.timezone);
+  
+        processedData.day = format(
+          localTime, 'eeee', { timeZone: data.timezone }
+        );
+        
+        arr.push(processedData);
+      }
 
       return arr;
     }, []);
 
-    console.log(dailyForecast);
-    // dom.renderDaily(dailyForecast);
+    // eslint-disable-next-line array-callback-return
+    dailyForecast.map((dayObj) => dom.renderDayCard(dayObj));
   };
 
-  return { loadCurrent, loadHourly, loadDaily };
+  const searchCity = () => {
+    const searchField = document.querySelector('input[id="city-input"]');
+    const searchInput = searchField.value;
+
+    if (searchInput === '') return;
+
+    api.getCoords({city: searchInput})
+    .then(locationData => api.getData(locationData))
+    .then(weatherData => {
+      dom.clear();
+      loadCurrent(weatherData);
+      loadDaily(weatherData);
+    })
+    // eslint-disable-next-line no-console
+    .catch((err) => console.error(err.message));
+  };
+
+  return { loadCurrent, loadHourly, loadDaily, searchCity };
 })();
 
 dom.renderHome();
 
 api.getCoords({city: 'Sydney'})
-.then(locationData => api.getData(locationData))
-.then(weatherData => app.loadCurrent(weatherData));
+.then(locationData => {
+  const data = locationData;
+  data.unit = 'metric';
+  return api.getData(data);
+})
+.then(weatherData => {
+  app.loadCurrent(weatherData);
+  app.loadHourly(weatherData);
+
+  const searchButton = document.querySelector('.location-search button');
+  searchButton.addEventListener('click', app.searchCity);
+
+  document.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') app.searchCity();
+  });
+});
