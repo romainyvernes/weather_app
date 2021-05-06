@@ -4,6 +4,9 @@ import { format, utcToZonedTime } from 'date-fns-tz';
 import { api } from './api';
 import { dom } from './dom';
 
+let currentUnit = 'imperial';
+let currentLocation = 'Sydney';
+
 const app = (() => {
   const processDayData = ({data, unit, timezone}) => {
     const dayData = data;
@@ -94,42 +97,112 @@ const app = (() => {
     dailyForecast.map((dayObj) => dom.renderDayCard(dayObj));
   };
 
-  const searchCity = () => {
-    const searchField = document.querySelector('input[id="city-input"]');
-    const searchInput = searchField.value;
+  const searchCity = async ({location, unit}) => {
+    if (location === '') return;
 
-    if (searchInput === '') return;
-
-    api.getCoords({city: searchInput})
-    .then(locationData => api.getData(locationData))
-    .then(weatherData => {
+    try {
+      const coords = await api.getCoords({ city: location });
+      const weatherData = await api.getData({ ...coords, unit });
       dom.clear();
       loadCurrent(weatherData);
-      loadDaily(weatherData);
-    })
-    // eslint-disable-next-line no-console
-    .catch((err) => console.error(err.message));
+      loadHourly(weatherData);
+    } catch (err) {
+      // eslint-disable-next-line consistent-return
+      return err;
+    }
   };
 
-  return { loadCurrent, loadHourly, loadDaily, searchCity };
+  const searchForecast = async () => {
+    try {
+      const coords = await api.getCoords({ city: currentLocation });
+      const weatherData = await api.getData({ ...coords, unit: currentUnit });
+      const forecastContainer = document.querySelector('.forecast-content');
+      
+      dom.clearContainer(forecastContainer);
+
+      return weatherData;
+    } catch (err) {
+      return err;
+    }
+  };
+
+  const createChangeTempEvent = () => {
+    const changeTempBtn = document.getElementById('change-temp-btn');
+    const unitToSubmit = currentUnit === 'imperial' ? 'metric' : 'imperial';
+
+    changeTempBtn.addEventListener('click', () => {
+      app.searchCity({
+        location: currentLocation, 
+        unit: unitToSubmit
+      })
+      .then(() => {
+        // eslint-disable-next-line no-unused-expressions
+        currentUnit === 'imperial' 
+        ? currentUnit = 'metric' 
+        : currentUnit = 'imperial';
+
+        createChangeTempEvent();
+      });
+    });
+  };
+
+  const createSearchEvents = () => {
+    const searchButton = document.querySelector('.location-search button');
+    searchButton.addEventListener('click', () => {
+      const searchField = document.getElementById('city-input');
+      const searchInput = searchField.value;
+      
+      app.searchCity({location: searchInput})
+      .then(() => {
+        currentLocation = searchInput;
+        createChangeTempEvent();
+      });
+    });
+
+    document.addEventListener('keypress', (event) => {
+      const searchField = document.getElementById('city-input');
+      const searchInput = searchField.value;
+      if (event.key === 'Enter') {
+        app.searchCity({location: searchInput})
+        .then(() => {
+          currentLocation = searchInput;
+          createChangeTempEvent();
+        });
+      };
+    });
+  };
+
+  const createForecastEvents = () => {
+    const hourlyBtn = document.getElementById('hourly-btn');
+    hourlyBtn.addEventListener('click', () => {
+      searchForecast()
+      .then(weatherData => loadHourly(weatherData));
+    });
+
+    const dailyBtn = document.getElementById('daily-btn');
+    dailyBtn.addEventListener('click', () => {
+      searchForecast()
+      .then(weatherData => loadDaily(weatherData));
+    });
+  };
+
+  return { 
+    loadCurrent, 
+    loadHourly, 
+    loadDaily, 
+    searchCity, 
+    createChangeTempEvent,
+    createSearchEvents,
+    createForecastEvents
+  };
 })();
 
 dom.renderHome();
 
-api.getCoords({city: 'Sydney'})
-.then(locationData => {
-  const data = locationData;
-  data.unit = 'metric';
-  return api.getData(data);
+app.searchCity({location: currentLocation, unit: 'metric'})
+.then(() => {
+  app.createSearchEvents();
+  app.createChangeTempEvent();
+  app.createForecastEvents();
 })
-.then(weatherData => {
-  app.loadCurrent(weatherData);
-  app.loadHourly(weatherData);
-
-  const searchButton = document.querySelector('.location-search button');
-  searchButton.addEventListener('click', app.searchCity);
-
-  document.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') app.searchCity();
-  });
-});
+.catch((err) => console.error(err));

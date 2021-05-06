@@ -165,16 +165,16 @@ const dom = (() => {
     temperature.textContent = 
       `${Math.round(data.temp)}°${data.unit === 'imperial' ? 'F' : 'C'}`;
 
-    const cToFButton = document.createElement('button');
-    cToFButton.type = 'button';
-    cToFButton.id = 'c-to-f-btn';
-    cToFButton.textContent = `| °${data.unit === 'imperial' ? 'C' : 'F'}`;
+    const changeTempBtn = document.createElement('button');
+    changeTempBtn.type = 'button';
+    changeTempBtn.id = 'change-temp-btn';
+    changeTempBtn.textContent = `| °${data.unit === 'imperial' ? 'C' : 'F'}`;
 
     container.appendChild(city);
     container.appendChild(date);
     container.appendChild(iconWrapper);
     container.appendChild(temperature);
-    container.appendChild(cToFButton);
+    container.appendChild(changeTempBtn);
   };
 
   const clearContainer = (target) => {
@@ -201,7 +201,7 @@ const dom = (() => {
   const renderDayCard = (data) => {
     const container = document.querySelector('.forecast-content');
 
-    const dayCard = document.createElement('div');
+    const dayCard = document.createElement('li');
     dayCard.className = 'daily-card';
 
     const day = document.createElement('div');
@@ -278,7 +278,8 @@ const dom = (() => {
     renderHome, 
     renderCurrent, 
     renderDetails, 
-    clear, 
+    clear,
+    clearContainer,
     renderDayCard,
     renderHourCard
   };
