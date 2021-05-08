@@ -5,7 +5,8 @@ import { api } from './api';
 import { dom } from './dom';
 
 let currentUnit = 'imperial';
-let currentLocation = 'Sydney';
+let currentLocation = 'Los Angeles';
+let currentForecast = 'hourly';
 
 const app = (() => {
   const processDayData = ({data, unit, timezone}) => {
@@ -71,6 +72,8 @@ const app = (() => {
     }
 
     hourlyForecast.map((hourObj) => dom.renderHourCard(hourObj));
+
+    currentForecast = 'hourly';
   };
 
   const loadDaily = (data) => {
@@ -95,20 +98,35 @@ const app = (() => {
 
     // eslint-disable-next-line array-callback-return
     dailyForecast.map((dayObj) => dom.renderDayCard(dayObj));
+
+    currentForecast = 'daily';
   };
 
-  const searchCity = async ({location, unit}) => {
+  const searchCity = async ({location, unit, forecast = 'hourly'}) => {
     if (location === '') return;
+    if (dom.checkError()) dom.hideError();
 
     try {
       const coords = await api.getCoords({ city: location });
       const weatherData = await api.getData({ ...coords, unit });
+
+      if (weatherData.cod === '400') {
+        dom.showError();
+        dom.resetSearch();
+        return;
+      }
+
       dom.clear();
       loadCurrent(weatherData);
-      loadHourly(weatherData);
+
+      if (forecast === 'hourly') {
+        loadHourly(weatherData);
+      } else {
+        loadDaily(weatherData);
+      }
     } catch (err) {
-      // eslint-disable-next-line consistent-return
-      return err;
+      // eslint-disable-next-line no-console
+      console.error(err);
     }
   };
 
@@ -126,14 +144,15 @@ const app = (() => {
     }
   };
 
-  const createChangeTempEvent = () => {
+  const createChangeUnitEvent = () => {
     const changeTempBtn = document.getElementById('change-temp-btn');
     const unitToSubmit = currentUnit === 'imperial' ? 'metric' : 'imperial';
 
     changeTempBtn.addEventListener('click', () => {
       app.searchCity({
         location: currentLocation, 
-        unit: unitToSubmit
+        unit: unitToSubmit,
+        forecast: currentForecast
       })
       .then(() => {
         // eslint-disable-next-line no-unused-expressions
@@ -141,7 +160,7 @@ const app = (() => {
         ? currentUnit = 'metric' 
         : currentUnit = 'imperial';
 
-        createChangeTempEvent();
+        createChangeUnitEvent();
       });
     });
   };
@@ -152,10 +171,14 @@ const app = (() => {
       const searchField = document.getElementById('city-input');
       const searchInput = searchField.value;
       
-      app.searchCity({location: searchInput})
+      app.searchCity({
+        location: searchInput, 
+        forecast: currentForecast,
+        unit: currentUnit
+      })
       .then(() => {
         currentLocation = searchInput;
-        createChangeTempEvent();
+        createChangeUnitEvent();
       });
     });
 
@@ -163,26 +186,53 @@ const app = (() => {
       const searchField = document.getElementById('city-input');
       const searchInput = searchField.value;
       if (event.key === 'Enter') {
-        app.searchCity({location: searchInput})
+        app.searchCity({
+          location: searchInput, 
+          forecast: currentForecast,
+          unit: currentUnit
+        })
         .then(() => {
           currentLocation = searchInput;
-          createChangeTempEvent();
+          createChangeUnitEvent();
         });
       };
     });
   };
 
+  const createScrollEvents = () => {
+    const arrows = document.querySelectorAll('.forecast-arrow');
+    const rightArrow = arrows[1];
+    rightArrow.addEventListener('click', () => {
+      dom.scrollForecastContent('right');
+    });
+
+    const leftArrow = arrows[0];
+    leftArrow.addEventListener('click', () => {
+      dom.scrollForecastContent('left');
+    });
+  };
+
   const createForecastEvents = () => {
     const hourlyBtn = document.getElementById('hourly-btn');
-    hourlyBtn.addEventListener('click', () => {
+    hourlyBtn.addEventListener('click', (event) => {
+      if (event.target.classList.contains('forecast-btn-selected')) return;
       searchForecast()
-      .then(weatherData => loadHourly(weatherData));
+      .then(weatherData => {
+        loadHourly(weatherData);
+        dom.toggleForecastSelection();
+        dom.setArrowDisplay();
+      });
     });
 
     const dailyBtn = document.getElementById('daily-btn');
-    dailyBtn.addEventListener('click', () => {
+    dailyBtn.addEventListener('click', (event) => {
+      if (event.target.classList.contains('forecast-btn-selected')) return;
       searchForecast()
-      .then(weatherData => loadDaily(weatherData));
+      .then(weatherData => {
+        loadDaily(weatherData);
+        dom.toggleForecastSelection();
+        dom.setArrowDisplay();
+      });
     });
   };
 
@@ -191,18 +241,26 @@ const app = (() => {
     loadHourly, 
     loadDaily, 
     searchCity, 
-    createChangeTempEvent,
+    createChangeUnitEvent,
     createSearchEvents,
-    createForecastEvents
+    createForecastEvents,
+    createScrollEvents
   };
 })();
 
 dom.renderHome();
 
-app.searchCity({location: currentLocation, unit: 'metric'})
+app.searchCity({location: currentLocation, unit: currentUnit})
 .then(() => {
+  app.createScrollEvents();
+  dom.setArrowDisplay();
   app.createSearchEvents();
-  app.createChangeTempEvent();
+  app.createChangeUnitEvent();
   app.createForecastEvents();
 })
+// eslint-disable-next-line no-console
 .catch((err) => console.error(err));
+
+window.onresize = () => {
+  dom.setArrowDisplay();
+};

@@ -7,6 +7,9 @@ const dom = (() => {
     const currentWeather = document.createElement('div');
     currentWeather.className = 'current-weather';
 
+    const searchWrapper = document.createElement('div');
+    searchWrapper.className = 'search-wrapper';
+
     const inputWrapper = document.createElement('div');
     inputWrapper.className = 'location-search';
 
@@ -26,11 +29,19 @@ const dom = (() => {
     inputWrapper.appendChild(locationInput);
     inputWrapper.appendChild(searchBtn);
 
+    const errorDisplay = document.createElement('span');
+    errorDisplay.className = 'error-display hide-error';
+    errorDisplay.textContent = 
+      'Please enter a valid location (city, state, country)';
+
+    searchWrapper.appendChild(inputWrapper);
+    searchWrapper.appendChild(errorDisplay);
+
     const currentData = document.createElement('div');
     currentData.className = 'current-data';
 
     mainContent.appendChild(currentWeather);
-    mainContent.appendChild(inputWrapper);
+    mainContent.appendChild(searchWrapper);
     mainContent.appendChild(currentData);
 
     const forecastSelection = document.createElement('div');
@@ -38,11 +49,13 @@ const dom = (() => {
 
     const hourlyBtn = document.createElement('button');
     hourlyBtn.type = 'button';
+    hourlyBtn.className = 'forecast-selection-btn forecast-btn-selected';
     hourlyBtn.id = 'hourly-btn';
     hourlyBtn.textContent = 'Hourly';
 
     const dailyBtn = document.createElement('button');
     dailyBtn.type = 'button';
+    dailyBtn.className = 'forecast-selection-btn';
     dailyBtn.id = 'daily-btn';
     dailyBtn.textContent = 'Daily';
 
@@ -52,9 +65,14 @@ const dom = (() => {
     const forecastWrapper = document.createElement('div');
     forecastWrapper.className = 'forecast-wrapper';
 
-    const leftArrow = document.createElement('i');
-    leftArrow.className = 'fas fa-chevron-left';
+    const leftArrow = document.createElement('div');
+    leftArrow.className = 'forecast-arrow';
     leftArrow.id = 'forecast-left-arrow';
+
+    const leftArrowIcon = document.createElement('i');
+    leftArrowIcon.className = 'fas fa-chevron-left';
+
+    leftArrow.appendChild(leftArrowIcon);
 
     forecastWrapper.appendChild(leftArrow);
 
@@ -63,9 +81,14 @@ const dom = (() => {
 
     forecastWrapper.appendChild(forecastContent);
 
-    const rightArrow = document.createElement('i');
-    rightArrow.className = 'fas fa-chevron-right';
+    const rightArrow = document.createElement('div');
+    rightArrow.className = 'forecast-arrow';
     rightArrow.id = 'forecast-right-arrow';
+
+    const rightArrowIcon = document.createElement('i');
+    rightArrowIcon.className = 'fas fa-chevron-right';
+    
+    rightArrow.appendChild(rightArrowIcon);
 
     forecastWrapper.appendChild(rightArrow);
 
@@ -186,16 +209,21 @@ const dom = (() => {
     }
   };
 
+  const resetSearch = () => {
+    const inputField = document.querySelector('input[id="city-input"]');
+    inputField.value = '';
+  };
+
   const clear = () => {
     const currentWeatherWrapper = document.querySelector('.current-weather');
-    const inputField = document.querySelector('input[id="city-input"]');
     const currentDataWrapper = document.querySelector('.current-data');
     const forecastContentWrapper = document.querySelector('.forecast-content');
 
     clearContainer(currentWeatherWrapper);
     clearContainer(currentDataWrapper);
     clearContainer(forecastContentWrapper);
-    inputField.value = '';
+    
+    resetSearch();
   };
 
   const renderDayCard = (data) => {
@@ -274,6 +302,65 @@ const dom = (() => {
     container.appendChild(hourCard);
   };
 
+  const toggleForecastSelection = () => {
+    const selectionBtns = 
+        document.querySelectorAll('.forecast-selection-btn');
+    selectionBtns.forEach(
+      (btn) => btn.classList.toggle('forecast-btn-selected')
+    );
+  };
+
+  const scrollForecastContent = (direction) => {
+    const container = document.querySelector('.forecast-content');
+    if (direction === 'right') {
+      container.scrollLeft += 50;
+    } else {
+      container.scrollLeft -= 50;
+    }
+  };
+
+  const setArrowDisplay = () => {
+    const forecast = document.querySelector('.forecast-content');
+    const arrows = document.querySelectorAll('.forecast-arrow');
+  
+    // checks if content within forecast container overflows
+    if (forecast.clientWidth < forecast.scrollWidth) {
+      // eslint-disable-next-line consistent-return
+      arrows.forEach((arrow) => {
+        if (arrow.classList.contains('hide-arrow')) {
+          arrow.classList.remove('hide-arrow');
+        }
+      });
+    } else {
+      // eslint-disable-next-line consistent-return
+      arrows.forEach((arrow) => {
+        if (!arrow.classList.contains('hide-arrow')) {
+          arrow.classList.add('hide-arrow');
+        }
+      });
+    }
+  };
+
+  const checkError = () => {
+    const error = document.querySelector('.error-display');
+    
+    if (error.classList.contains('hide-error')) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const showError = () => {
+    const error = document.querySelector('.error-display');
+    error.classList.remove('hide-error');
+  };
+
+  const hideError = () => {
+    const error = document.querySelector('.error-display');
+    error.classList.add('hide-error');
+  };
+
   return { 
     renderHome, 
     renderCurrent, 
@@ -281,7 +368,14 @@ const dom = (() => {
     clear,
     clearContainer,
     renderDayCard,
-    renderHourCard
+    renderHourCard,
+    toggleForecastSelection,
+    scrollForecastContent,
+    setArrowDisplay,
+    showError,
+    hideError,
+    checkError,
+    resetSearch,
   };
 })();
 

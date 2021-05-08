@@ -2,6 +2,7 @@
 
 html {
   box-sizing: border-box;
+  scroll-behavior: smooth;
 }
 
 *,
@@ -57,6 +58,8 @@ main {
 img[id='current-weather-icon'] {
   height: 10em;
   width: auto;
+  position: absolute;
+  left: -1.3em;
 }
 
 .current-description {
@@ -64,7 +67,7 @@ img[id='current-weather-icon'] {
   top: 7.3em;
   left: 0.8em;
   font-size: 1.2em;
-  width: fit-content;
+  white-space: nowrap;
 }
 
 .current-temperature {
@@ -88,8 +91,11 @@ img[id='current-weather-icon'] {
   transform: scale(0.9);
 }
 
-.location-search {
+.search-wrapper {
   align-self: center;
+}
+
+.location-search {
   background-color: grey;
   padding: 0.7em 0 0.7em 1em;
   border-radius: 10px;
@@ -120,6 +126,15 @@ input[id='city-input']::placeholder {
   cursor: pointer;
 }
 
+.error-display {
+  display: block;
+  margin-top: 1em;
+}
+
+.hide-error {
+  visibility: hidden;
+}
+
 .current-data {
   margin-right: 4em;
   margin-top: 1.5em;
@@ -145,8 +160,7 @@ input[id='city-input']::placeholder {
   margin-right: 1em;
 }
 
-#hourly-btn,
-#daily-btn {
+.forecast-selection-btn {
   width: 80px;
   padding: 0.5em 0;
   background-color: transparent;
@@ -154,17 +168,21 @@ input[id='city-input']::placeholder {
   border-radius: 5px;
   font-size: 1em;
   font-weight: bold;
+  transition: transform ease 0.1s;
 }
 
-#hourly-btn:hover,
-#daily-btn:hover {
+.forecast-selection-btn:hover {
   cursor: pointer;
   background-color: rgba(255, 255, 255, 0.5);
 }
 
-#hourly-btn:active,
-#daily-btn:active {
+.forecast-selection-btn:active {
   transform: scale(0.98);
+}
+
+.forecast-btn-selected {
+  background-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
 }
 
 .forecast-wrapper {
@@ -174,16 +192,18 @@ input[id='city-input']::placeholder {
   margin: 1em 0;
 }
 
-#forecast-left-arrow,
-#forecast-right-arrow {
+.forecast-arrow {
   display: flex;
   align-self: center;
   font-size: 1.3em;
   transition: transform ease 0.1s;
 }
 
-#forecast-left-arrow:hover,
-#forecast-right-arrow:hover {
+.hide-arrow {
+  visibility: hidden;
+}
+
+.forecast-arrow:hover {
   cursor: pointer;
   transform: scale(1.4);
   color: white;
@@ -206,6 +226,12 @@ input[id='city-input']::placeholder {
   border-radius: 5px;
   height: 13em;
   margin: 0;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.forecast-content::-webkit-scrollbar {
+  display: none;
 }
 
 .daily-card,
