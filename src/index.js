@@ -43,8 +43,10 @@ const app = (() => {
       unit: data.unit,
       timezone: data.timezone
     });
+    const countryName = new Intl.DisplayNames(['en'], { type: 'region' });
 
     currentWeather.city = data.city;
+    currentWeather.country = countryName.of(data.country);
     currentWeather.pop = data.hourly[0].pop;
     currentWeather.wind_speed = Math.round(currentWeather.wind_speed * 3.6);
     
@@ -107,7 +109,7 @@ const app = (() => {
     if (dom.checkError()) dom.hideError();
 
     try {
-      const coords = await api.getCoords({ city: location });
+      const coords = await api.getCoords({ location });
       const weatherData = await api.getData({ ...coords, unit });
 
       if (weatherData.cod === '400') {
@@ -115,6 +117,8 @@ const app = (() => {
         dom.resetSearch();
         return;
       }
+
+      currentLocation = location;
 
       dom.clear();
       loadCurrent(weatherData);
@@ -132,7 +136,7 @@ const app = (() => {
 
   const searchForecast = async () => {
     try {
-      const coords = await api.getCoords({ city: currentLocation });
+      const coords = await api.getCoords({ location: currentLocation });
       const weatherData = await api.getData({ ...coords, unit: currentUnit });
       const forecastContainer = document.querySelector('.forecast-content');
       
@@ -177,7 +181,6 @@ const app = (() => {
         unit: currentUnit
       })
       .then(() => {
-        currentLocation = searchInput;
         createChangeUnitEvent();
       });
     });
@@ -185,6 +188,7 @@ const app = (() => {
     document.addEventListener('keypress', (event) => {
       const searchField = document.getElementById('city-input');
       const searchInput = searchField.value;
+      
       if (event.key === 'Enter') {
         app.searchCity({
           location: searchInput, 
@@ -192,7 +196,6 @@ const app = (() => {
           unit: currentUnit
         })
         .then(() => {
-          currentLocation = searchInput;
           createChangeUnitEvent();
         });
       };

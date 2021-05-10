@@ -1,7 +1,7 @@
 const api = (() => {
   const API_KEY = '69055aa414e2da2ff325d776cdced0db';
 
-  const getData = async ({city, lat, lon, unit = 'imperial'}) => {
+  const getData = async ({city, country, lat, lon, unit = 'imperial'}) => {
     try {
       const response = await fetch(
         `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=${unit}&appid=${API_KEY}`
@@ -10,6 +10,7 @@ const api = (() => {
 
       data.unit = unit;
       data.city = city;
+      data.country = country;
   
       return data;
     } catch(err) {
@@ -17,17 +18,18 @@ const api = (() => {
     }
   };
 
-  const getCoords = async ({city, state = '', country = ''}) => {
+  const getCoords = async ({location}) => {
     try {
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}${state ? ',' : ''}${state}${country ? ',' : ''}${country}&appid=${API_KEY}`
+        `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${API_KEY}`
       );
       const data = await response.json();
   
       return {
         lat: data.coord.lat,
         lon: data.coord.lon,
-        city: data.name
+        city: data.name,
+        country: data.sys.country
       };
     } catch(err) {
       return err;

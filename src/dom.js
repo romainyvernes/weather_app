@@ -4,6 +4,9 @@ const dom = (() => {
 
     const mainContent = document.createElement('main');
 
+    const currentWeatherWrapper = document.createElement('div');
+    currentWeatherWrapper.className = 'current-weather-wrapper';
+
     const currentWeather = document.createElement('div');
     currentWeather.className = 'current-weather';
 
@@ -32,17 +35,23 @@ const dom = (() => {
     const errorDisplay = document.createElement('span');
     errorDisplay.className = 'error-display hide-error';
     errorDisplay.textContent = 
-      'Please enter a valid location (city, state, country)';
+      `Please enter a valid location
+      (city, state, country OR zip code, country)`;
 
     searchWrapper.appendChild(inputWrapper);
     searchWrapper.appendChild(errorDisplay);
 
+    currentWeatherWrapper.appendChild(currentWeather);
+    currentWeatherWrapper.appendChild(searchWrapper);
+
     const currentData = document.createElement('div');
     currentData.className = 'current-data';
 
-    mainContent.appendChild(currentWeather);
-    mainContent.appendChild(searchWrapper);
+    mainContent.appendChild(currentWeatherWrapper);
     mainContent.appendChild(currentData);
+
+    const forecastWrapper = document.createElement('div');
+    forecastWrapper.className = 'forecast-wrapper';
 
     const forecastSelection = document.createElement('div');
     forecastSelection.className = 'forecast-selection-wrapper';
@@ -62,8 +71,8 @@ const dom = (() => {
     forecastSelection.appendChild(hourlyBtn);
     forecastSelection.appendChild(dailyBtn);
 
-    const forecastWrapper = document.createElement('div');
-    forecastWrapper.className = 'forecast-wrapper';
+    const forecastContentWrapper = document.createElement('div');
+    forecastContentWrapper.className = 'forecast-content-wrapper';
 
     const leftArrow = document.createElement('div');
     leftArrow.className = 'forecast-arrow';
@@ -74,12 +83,8 @@ const dom = (() => {
 
     leftArrow.appendChild(leftArrowIcon);
 
-    forecastWrapper.appendChild(leftArrow);
-
     const forecastContent = document.createElement('ul');
     forecastContent.className = 'forecast-content';
-
-    forecastWrapper.appendChild(forecastContent);
 
     const rightArrow = document.createElement('div');
     rightArrow.className = 'forecast-arrow';
@@ -90,10 +95,14 @@ const dom = (() => {
     
     rightArrow.appendChild(rightArrowIcon);
 
-    forecastWrapper.appendChild(rightArrow);
+    forecastContentWrapper.appendChild(leftArrow);
+    forecastContentWrapper.appendChild(forecastContent);
+    forecastContentWrapper.appendChild(rightArrow);
+
+    forecastWrapper.appendChild(forecastSelection);
+    forecastWrapper.appendChild(forecastContentWrapper);
 
     container.appendChild(mainContent);
-    container.appendChild(forecastSelection);
     container.appendChild(forecastWrapper);
   };
 
@@ -158,7 +167,13 @@ const dom = (() => {
 
     const city = document.createElement('div');
     city.className = 'city-name';
-    city.textContent = data.city;
+    city.innerHTML = data.city;
+
+    const country = document.createElement('span');
+    country.className = 'country-name';
+    country.textContent = ` (${data.country})`;
+
+    city.appendChild(country);
 
     const date = document.createElement('div');
     date.className = 'current-date';
@@ -275,6 +290,9 @@ const dom = (() => {
     const hourCard = document.createElement('li');
     hourCard.className = 'hourly-card';
 
+    const timeWrapper = document.createElement('div');
+    timeWrapper.className = 'time-wrapper';
+
     const time = document.createElement('div');
     time.className = 'hourly-label';
     time.textContent = data.time;
@@ -282,6 +300,9 @@ const dom = (() => {
     const precipitation = document.createElement('div');
     precipitation.className = 'hourly-precipitation';
     precipitation.textContent = `${Math.round(data.pop * 100)}%`;
+
+    timeWrapper.appendChild(time);
+    timeWrapper.appendChild(precipitation);
 
     const icon = document.createElement('img');
     icon.src = 
@@ -294,8 +315,7 @@ const dom = (() => {
     temperature.textContent =
       `${Math.round(data.temp)}°${data.unit === 'imperial' ? 'F' : 'C'}`;
 
-    hourCard.appendChild(time);
-    hourCard.appendChild(precipitation);
+    hourCard.appendChild(timeWrapper);
     hourCard.appendChild(icon);
     hourCard.appendChild(temperature);
 

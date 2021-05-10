@@ -16,29 +16,40 @@ html {
 }
 
 body {
-  background: url(./background.png);
+  background: url(./background.jpeg);
   background-size: cover;
-  height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
   overflow: auto;
   margin: 0;
   display: flex;
-  justify-content: center;
   flex-direction: column;
+  justify-content: space-between;
 }
 
 main {
   display: flex;
   justify-content: space-between;
+  margin-bottom: 2.5em;
+}
+
+.current-weather-wrapper {
+  margin-left: 3em;
+  margin-top: 2em;
 }
 
 .current-weather {
-  margin-left: 3em;
-  margin-top: 2em;
   position: relative;
 }
 
 .city-name {
   font-size: 2.3em;
+}
+
+.country-name {
+  font-weight: 400;
+  font-size: 0.5em;
 }
 
 .current-date {
@@ -52,7 +63,7 @@ main {
   align-items: center;
   position: absolute;
   left: -1em;
-  top: 4em;
+  top: 3em;
 }
 
 img[id='current-weather-icon'] {
@@ -75,7 +86,7 @@ img[id='current-weather-icon'] {
   font-weight: bold;
   position: absolute;
   left: 3.8em;
-  top: 2.5em;
+  top: 2em;
 }
 
 #change-temp-btn {
@@ -84,7 +95,7 @@ img[id='current-weather-icon'] {
   font-size: 1.5em;
   position: absolute;
   left: 11.8em;
-  top: 5.2em;
+  top: 4.2em;
 }
 
 #change-temp-btn:active {
@@ -92,14 +103,14 @@ img[id='current-weather-icon'] {
 }
 
 .search-wrapper {
-  align-self: center;
+  max-width: 16em;
+  margin-top: 11em;
 }
 
 .location-search {
   background-color: grey;
   padding: 0.7em 0 0.7em 1em;
   border-radius: 10px;
-  min-width: 15em;
 }
 
 input[id='city-input'] {
@@ -108,7 +119,7 @@ input[id='city-input'] {
   color: white;
   outline: none;
   width: 83%;
-  font-size: 1.1em;
+  font-size: 1em;
 }
 
 input[id='city-input']::placeholder {
@@ -119,7 +130,7 @@ input[id='city-input']::placeholder {
   border: none;
   background-color: transparent;
   color: white;
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 
 .location-search button:hover {
@@ -129,6 +140,8 @@ input[id='city-input']::placeholder {
 .error-display {
   display: block;
   margin-top: 1em;
+  max-width: 19em;
+  font-size: 0.8em;
 }
 
 .hide-error {
@@ -153,7 +166,7 @@ input[id='city-input']::placeholder {
 }
 
 .forecast-selection-wrapper {
-  margin-left: 2.8em;
+  margin-left: 3.3em;
 }
 
 #hourly-btn {
@@ -185,11 +198,10 @@ input[id='city-input']::placeholder {
   transform: scale(1.1);
 }
 
-.forecast-wrapper {
+.forecast-content-wrapper {
   display: flex;
-  align-self: center;
-  width: 93vw;
-  margin: 1em 0;
+  margin: 1em 0 2em 0;
+  padding: 0 1em;
 }
 
 .forecast-arrow {
@@ -242,11 +254,24 @@ input[id='city-input']::placeholder {
   padding: 0 0.7em;
 }
 
+.hourly-card {
+  min-width: 7em;
+}
+
+.daily-card {
+  min-width: 9em;
+}
+
 .daily-max-temperature,
 .daily-label,
 .hourly-label,
 .hourly-temperature {
   font-weight: bold;
+}
+
+.time-wrapper {
+  display: flex;
+  flex-direction: column;
 }
 
 .daily-label {
@@ -264,4 +289,105 @@ input[id='city-input']::placeholder {
 .hourly-temperature,
 .daily-max-temperature {
   font-size: 1.5em;
+}
+
+@media (max-width: 700px) {
+  .current-weather-wrapper {
+    margin-left: 0;
+    margin-top: -1em;
+    transform: scale(0.8);
+  }
+
+  .country-name {
+    display: block;
+  }
+
+  .current-data {
+    margin-top: 0;
+    margin-right: 1em;
+  }
+
+  .current-temperature {
+    left: 3em;
+  }
+
+  #change-temp-btn {
+    left: 10em;
+  }
+
+  .forecast-wrapper {
+    margin: 0;
+    transform: scale(0.9);
+  }
+
+  .forecast-arrow {
+    display: none;
+  }
+
+  .forecast-selection-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-left: 0;
+  }
+
+  .forecast-content-wrapper {
+    padding: 0;
+    margin-bottom: 0.5em;
+  }
+
+  .forecast-content {
+    flex-direction: column;
+    padding: 0;
+    height: 35vh;
+  }
+
+  .daily-card,
+  .hourly-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 0;
+    width: 100vw;
+  }
+}
+
+@media (max-width: 400px) {
+  main {
+    margin-bottom: 0;
+    height: 47vh;
+  }
+
+  .current-weather-wrapper {
+    transform: scale(0.7);
+    margin-left: -1.2em;
+  }
+
+  .icon-wrapper {
+    top: 5.5em;
+  }
+
+  .current-data {
+    transform: scale(0.7);
+    margin-top: -1.5em;
+    margin-right: 0.2em;
+  }
+
+  .current-temperature {
+    top: 2.8em;
+    left: 2.5em;
+  }
+
+  #change-temp-btn {
+    top: 5.8em;
+    left: 9.2em;
+  }
+
+  .forecast-selection-wrapper {
+    transform: scale(0.8);
+  }
+
+  .daily-card,
+  .hourly-card {
+    transform: scale(0.9);
+  }
 }
