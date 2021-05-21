@@ -1,5 +1,5 @@
 const api = (() => {
-  const API_KEY = '69055aa414e2da2ff325d776cdced0db';
+  const API_KEY = secret.API_KEY;
 
   const getData = async ({city, country, lat, lon, unit = 'imperial'}) => {
     try {
